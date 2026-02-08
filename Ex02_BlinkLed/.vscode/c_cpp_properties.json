@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "S32K144",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/Project_Settings/Startup_Code"
+            ],
+            "defines": [
+                "__S32K144__"
+            ],
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}

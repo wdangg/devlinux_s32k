@@ -1,51 +1,57 @@
 #include "S32K144.h"
+#include <stdio.h>
+#include <stdint.h>
+#include "Wrapper_GPIO.h"
 
-#define DELAY_TIME      50000U
+/* led blue ptd0  */
+/* button 0 ptc12 */
 
-void delay(const uint32_t time)
+#define PCC_CGC_ENABLE          1u
+#define PORT_PCR_MUX_GPIO       1u
+#define PORT_PCR_PE_ENABLE      1u
+#define PORT_PCR_PS_PULLDOWN    0u
+#define PORT_PCR_PS_PULLUP      1u
+#define GPIO_PDDR_OUPUT         1u
+#define GPIO_PDDR_INPUT         0u
+
+void delay_ms(const uint32_t ms)
 {
-    volatile uint32_t i;
-    for (i = 0; i < time; i++)
+    volatile uint32_t i = 0u;
+    for (i = 0; i < ms; i++)
     {
         /* do nothing */
     }
 }
 
-int main()
+int main(void)
 {
-    /* Cap clock cho PORTC */
-    IP_PCC->PCCn[PCC_PORTC_INDEX] |= PCC_PCCn_CGC(1);
+    /* Enable clock for port C and port D via CGC of PCC, bus interface BUS_CLK */
+    IP_PCC->PCCn[PCC_PORTC_INDEX] |= PCC_PCCn_CGC(PCC_CGC_ENABLE);
+    IP_PCC->PCCn[PCC_PORTD_INDEX] |= PCC_PCCn_CGC(PCC_CGC_ENABLE);
 
-    /* Cap clock cho PORTD */
-    IP_PCC->PCCn[PCC_PORTD_INDEX] |= PCC_PCCn_CGC(1);
+    /* Config PTD0 and PTC12 as GPIO mode via PORT_PCRn_MUX */
+    IP_PORTD->PCR[LED_BLUE.pin] |= PORT_PCR_MUX(PORT_PCR_MUX_GPIO);
+    IP_PORTC->PCR[BTN0.pin] |= PORT_PCR_MUX(PORT_PCR_MUX_GPIO);
 
-    /* Chon chuc nang cho PTC12*/
-    IP_PORTC->PCR[12] |= PORT_PCR_MUX(0b001);
+    /* Config PTD0 as OUPUT pin via GPIO PDDR */
+    IP_PTD->PDDR |= GPIO_PDDR_PDD(GPIO_PDDR_OUPUT);
+    
+    /* Config PTC12 as INPUT pin via GPIO PDDR */
+    IP_PTD->PDDR &= ~GPIO_PDDR_PDD(GPIO_PDDR_INPUT);
 
-    /* Chon chuc nang cho PTD0*/
-    IP_PORTD->PCR[0] |= PORT_PCR_MUX(0b001);
+    /* Enable pull for BTN0-PTC12 via PORT_PCR_PE */
+    IP_PORTC->PCR[BTN0.pin] |= PORT_PCR_PE(PORT_PCR_PE_ENABLE);
+    
+    /* Set pull-down for BTN0 via PORT_PCR_PS */
+    IP_PORTC->PCR[BTN0.pin] |= PORT_PCR_PS(PORT_PCR_PS_PULLDOWN);
 
-    /* Cau hinh input cho PTC12 */
-    IP_PTC->PDDR &= ~(1U << 12);
-
-    /* Cau hinh output cho PTD0 */
-    IP_PTD->PDDR |= (1U << 0);
-
-    /* Cau hinh pull-down cho PTC12 */
-    IP_PORTC->PCR[12] &= ~(1U << 0);
-
-    /* Cau hinh pu-pd enable */
-    IP_PORTC->PCR[12] |= (1U << 0);
-
-    /* Turn off PTD0 */
-    IP_PTD->PDOR &= ~(1U << 0);
-
-    while (1)
+    while(1)
     {
-        IP_PTD->PDOR |= (1U << 0);
-        delay(DELAY_TIME);
-        IP_PTD->PDOR &= ~(1U << 0);
-        delay(DELAY_TIME);
+        if ((IP_PTC->PDIR & (1u << (uint32_t)BTN0.pin)) != ((1u << (uint32_t)BTN0.pin)))
+        {
+            delay_ms(300000);
+            IP_PTD->PTOR |= (1u << LED_BLUE.pin);
+        }
     }
 
     return 0;
