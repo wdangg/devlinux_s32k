@@ -18,8 +18,15 @@
 
 #include "Driver_GPIO.h"
 
-/* Pin mapping */
-#define GPIO_MAX_PINS 160U
+sPinDef_t GPIO_DecodePin(ARM_GPIO_Pin_t map_pin)
+{
+    sPinDef_t RetVal;
+
+    RetVal.port = DECODE_PORT_NUM(map_pin);
+    RetVal.pin = DECODE_PIN_NUM(map_pin);
+
+    return RetVal;
+}
 
 /**
  * @brief
@@ -31,9 +38,17 @@
 static int32_t GPIO_Setup(ARM_GPIO_Pin_t pin, ARM_GPIO_SignalEvent_t cb_event)
 {
     int32_t result = ARM_DRIVER_OK;
+    sPinDef_t pin_map;
+
+    /* Decode pin, ARM_GPIO_Pin_t to struct pin_map */
+    pin_map = GPIO_DecodePin(pin);
 
     if (PIN_IS_AVAILABLE(pin))
     {
+        /* Call ip to ecable clock for port */
+        Ip_GPIO_EnableClock(pin_map.port);
+        /* Set GPIO alternative 1 0x1 via Ip_PORT module */
+        Ip_PORT_SetMux(pin_map.port, pin_map.pin, ePORT_PCRn_AL_1);
     }
     else
     {
@@ -53,14 +68,20 @@ static int32_t GPIO_Setup(ARM_GPIO_Pin_t pin, ARM_GPIO_SignalEvent_t cb_event)
 static int32_t GPIO_SetDirection(ARM_GPIO_Pin_t pin, ARM_GPIO_DIRECTION direction)
 {
     int32_t result = ARM_DRIVER_OK;
+    sPinDef_t pin_map;
+
+    /* Decode pin, ARM_GPIO_Pin_t to struct pin_map */
+    pin_map = GPIO_DecodePin(pin);
 
     if (PIN_IS_AVAILABLE(pin))
     {
         switch (direction)
         {
         case ARM_GPIO_INPUT:
+            Ip_GPIO_SetDirection(pin_map.port, pin_map.pin, eIP_GPIO_INPUT);
             break;
         case ARM_GPIO_OUTPUT:
+            Ip_GPIO_SetDirection(pin_map.port, pin_map.pin, eIP_GPIO_OUTPUT);
             break;
         default:
             result = ARM_DRIVER_ERROR_PARAMETER;
@@ -117,7 +138,7 @@ static int32_t GPIO_SetOutputMode(ARM_GPIO_Pin_t pin, ARM_GPIO_OUTPUT_MODE mode)
 static int32_t GPIO_SetPullResistor(ARM_GPIO_Pin_t pin, ARM_GPIO_PULL_RESISTOR resistor)
 {
     int32_t result = ARM_DRIVER_OK;
-
+    
     if (PIN_IS_AVAILABLE(pin))
     {
         switch (resistor)
@@ -151,7 +172,7 @@ static int32_t GPIO_SetPullResistor(ARM_GPIO_Pin_t pin, ARM_GPIO_PULL_RESISTOR r
 static int32_t GPIO_SetEventTrigger(ARM_GPIO_Pin_t pin, ARM_GPIO_EVENT_TRIGGER trigger)
 {
     int32_t result = ARM_DRIVER_OK;
-
+    
     if (PIN_IS_AVAILABLE(pin))
     {
         switch (trigger)
@@ -186,7 +207,6 @@ static int32_t GPIO_SetEventTrigger(ARM_GPIO_Pin_t pin, ARM_GPIO_EVENT_TRIGGER t
  */
 static void GPIO_SetOutput(ARM_GPIO_Pin_t pin, uint32_t val)
 {
-
     if (PIN_IS_AVAILABLE(pin))
     {
     }
@@ -201,7 +221,7 @@ static void GPIO_SetOutput(ARM_GPIO_Pin_t pin, uint32_t val)
 static uint32_t GPIO_GetInput(ARM_GPIO_Pin_t pin)
 {
     uint32_t val = 0U;
-
+    
     if (PIN_IS_AVAILABLE(pin))
     {
     }
