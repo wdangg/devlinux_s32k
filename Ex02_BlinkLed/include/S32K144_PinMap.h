@@ -28,14 +28,14 @@ typedef struct
 } sPinDef_t;
 
 #define PTD15 ((sPinDef_t){ePORTD, 15u})  /* led red ptd15  */
-#define PTD4  ((sPinDef_t){ePORTD, 4u})   /* led green ptd4 */
+#define PTD16 ((sPinDef_t){ePORTD, 16u})   /* led green ptd4 */
 #define PTD0  ((sPinDef_t){ePORTD, 0u})   /* led blue ptd0  */
 #define PTC12 ((sPinDef_t){ePORTC, 12u})  /* button 0 ptc12 */
 #define PTC13 ((sPinDef_t){ePORTC, 13u})  /* button 1 ptc13 */
 
 /* User RGB LED */
 #define LED_RED     PTD15
-#define LED_GREEN   PTD4
+#define LED_GREEN   PTD16
 #define LED_BLUE    PTD0
 
 /* User button */

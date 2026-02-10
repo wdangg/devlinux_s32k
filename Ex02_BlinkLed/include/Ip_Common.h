@@ -17,4 +17,7 @@
 #define IP_RETURN_OK                 0 ///< Operation succeeded
 #define IP_RETURN_ERROR             -1 ///< Unspecified error
 
+#define IP_TIMEOUT_OCCURRED     0u
+#define IP_TIMEOUT              10u
+
 #endif /* IP_COMMON_H_ */

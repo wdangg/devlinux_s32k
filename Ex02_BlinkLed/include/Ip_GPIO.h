@@ -17,14 +17,23 @@
 
 typedef enum 
 {
-    eIP_GPIO_INPUT,                       ///< Input (default)
-    eIP_GPIO_OUTPUT                       ///< Output
+    eIP_GPIO_INPUT,                        /* Input (default) */
+    eIP_GPIO_OUTPUT                        /* Output */
 } eGPIO_DIRECTION_t;
+
 
 void Ip_GPIO_GetGpioAddress(ePortName port, GPIO_Type **pGpio);
 
 int32_t Ip_GPIO_EnableClock(uint32_t port);
 
 int32_t Ip_GPIO_SetDirection(uint32_t port, uint32_t pin, eGPIO_DIRECTION_t direction);
+
+uint32_t Ip_GPIO_GetInput(uint32_t port, uint32_t pin);
+
+void Ip_GPIO_SetOuput(uint32_t port, uint32_t pin, uint32_t val);
+
+void Ip_GPIO_ToggleOuput(uint32_t port, uint32_t pin);
+
+uint32_t Ip_GPIO_GetDataOuput(uint32_t port, uint32_t pin);
 
 #endif /* IP_GPIO_H_ */

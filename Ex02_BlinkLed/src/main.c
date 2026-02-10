@@ -1,6 +1,7 @@
 #include "S32K144.h"
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "Wrapper_GPIO.h"
 
 /* led blue ptd0  */
@@ -14,6 +15,9 @@
 #define GPIO_PDDR_OUPUT         1u
 #define GPIO_PDDR_INPUT         0u
 
+#define BTN_PRESSED             0u
+#define BTN_RELEASED            1u
+
 void delay_ms(const uint32_t ms)
 {
     volatile uint32_t i = 0u;
@@ -25,37 +29,32 @@ void delay_ms(const uint32_t ms)
 
 int main(void)
 {
-    // /* Enable clock for port C and port D via CGC of PCC, bus interface BUS_CLK */
-    // IP_PCC->PCCn[PCC_PORTC_INDEX] |= PCC_PCCn_CGC(PCC_CGC_ENABLE);
-    // IP_PCC->PCCn[PCC_PORTD_INDEX] |= PCC_PCCn_CGC(PCC_CGC_ENABLE);
-
-    // /* Config PTD0 and PTC12 as GPIO mode via PORT_PCRn_MUX */
-    // IP_PORTD->PCR[LED_BLUE.pin] |= PORT_PCR_MUX(PORT_PCR_MUX_GPIO);
-    // IP_PORTC->PCR[BTN0.pin] |= PORT_PCR_MUX(PORT_PCR_MUX_GPIO);
-
-    // /* Config PTD0 as OUPUT pin via GPIO PDDR */
-    // IP_PTD->PDDR |= GPIO_PDDR_PDD(GPIO_PDDR_OUPUT);
-    
-    // /* Config PTC12 as INPUT pin via GPIO PDDR */
-    // IP_PTD->PDDR &= ~GPIO_PDDR_PDD(GPIO_PDDR_INPUT);
-
-    // /* Enable pull for BTN0-PTC12 via PORT_PCR_PE */
-    // IP_PORTC->PCR[BTN0.pin] |= PORT_PCR_PE(PORT_PCR_PE_ENABLE);
-    
-    // /* Set pull-down for BTN0 via PORT_PCR_PS */
-    // IP_PORTC->PCR[BTN0.pin] |= PORT_PCR_PS(PORT_PCR_PS_PULLDOWN);
-
+    /* Setup led pin PTD0 */
     Wrapper_GPIO_Setup(LED_BLUE, NULL);
+    /* Config led pin is ouput */
     Wrapper_GPIO_SetDirection(LED_BLUE, ARM_GPIO_OUTPUT);
+    
+    Wrapper_GPIO_Setup(BTN0, NULL);
+    Wrapper_GPIO_SetDirection(BTN0, ARM_GPIO_INPUT);
+    Wrapper_GPIO_SetPullResistor(BTN0, ARM_GPIO_PULL_UP);
+
+    /* Turn off led */
+    Wrapper_GPIO_SetOuput(LED_BLUE, 1u);
 
     while(1)
     {
-        // if ((IP_PTC->PDIR & (1u << (uint32_t)BTN0.pin)) != ((1u << (uint32_t)BTN0.pin)))
-        // {
-            delay_ms(3000000);
-            IP_PTD->PTOR |= (1u << LED_BLUE.pin);
-        // }
+        if (BTN_PRESSED == Wrapper_GPIO_GetInput(BTN0))
+        {
+            delay_ms(1000000);
+            if (0 == Wrapper_GPIO_GetDataOuput(LED_BLUE))
+            {
+                Wrapper_GPIO_SetOuput(LED_BLUE, 1);
+            }
+            else
+            {
+                Wrapper_GPIO_SetOuput(LED_BLUE, 0);
+            }
+        }
     }
-
     return 0;
 }

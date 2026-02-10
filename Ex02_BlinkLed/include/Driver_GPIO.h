@@ -147,7 +147,9 @@ typedef struct _ARM_DRIVER_GPIO {
     int32_t  (*SetPullResistor) (ARM_GPIO_Pin_t pin, ARM_GPIO_PULL_RESISTOR resistor); ///< Pointer to \ref ARM_GPIO_SetPullResistor : Set GPIO Pull Resistor.
     int32_t  (*SetEventTrigger) (ARM_GPIO_Pin_t pin, ARM_GPIO_EVENT_TRIGGER trigger);  ///< Pointer to \ref ARM_GPIO_SetEventTrigger : Set GPIO Event Trigger.
     void     (*SetOutput)       (ARM_GPIO_Pin_t pin, uint32_t val);                    ///< Pointer to \ref ARM_GPIO_SetOutput : Set GPIO Output Level.
+    void     (*ToggleOutput)       (ARM_GPIO_Pin_t pin);                    ///< Pointer to \ref ARM_GPIO_SetOutput : Toggle GPIO Output Level.
     uint32_t (*GetInput)        (ARM_GPIO_Pin_t pin);                                  ///< Pointer to \ref ARM_GPIO_GetInput : Get GPIO Input Level.
+    uint32_t (*GetDataOutput)        (ARM_GPIO_Pin_t pin);                                  ///< Pointer to \ref ARM_GPIO_GetInput : Get GPIO data ouput Level.
 } const ARM_DRIVER_GPIO;
 
 sPinDef_t GPIO_DecodePin(ARM_GPIO_Pin_t map_pin);
